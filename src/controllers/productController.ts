@@ -70,23 +70,19 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 // Get product by ID
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await Product.findOne({
-      where: {
-        id: req.params.id,
-        isDeleted: false
-      },
+    const product = await Product.findByPk(req.params.id, {
       include: [{
         model: Category,
         as: 'category',
-        where: { isDeleted: false },
-        required: false
+        attributes: ['id', 'name']
       }]
     });
 
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
 
     res.json(product);
@@ -97,7 +93,7 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 // Create new product (admin only)
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🟢 PRODUCT CREATION STARTED');
     console.log('Product details:', {
@@ -119,19 +115,22 @@ export const createProduct = async (req: Request, res: Response) => {
     // Validate required fields
     if (!name || !description || !price || !categoryId) {
       console.log('❌ PRODUCT CREATION FAILED: Missing required fields');
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Missing required fields: name, description, price, and categoryId are required' 
       });
+      return;
     }
 
     // Validate price and stock
     if (price < 0) {
       console.log('❌ PRODUCT CREATION FAILED: Negative price');
-      return res.status(400).json({ error: 'Price cannot be negative' });
+      res.status(400).json({ error: 'Price cannot be negative' });
+      return;
     }
     if (stockQuantity < 0) {
       console.log('❌ PRODUCT CREATION FAILED: Negative stock');
-      return res.status(400).json({ error: 'Stock cannot be negative' });
+      res.status(400).json({ error: 'Stock cannot be negative' });
+      return;
     }
 
     // Validate category exists
@@ -144,7 +143,8 @@ export const createProduct = async (req: Request, res: Response) => {
 
     if (!category) {
       console.log('❌ PRODUCT CREATION FAILED: Category not found');
-      return res.status(400).json({ error: 'Category not found' });
+      res.status(400).json({ error: 'Category not found' });
+      return;
     }
 
     // Check if product with same name exists
@@ -157,7 +157,8 @@ export const createProduct = async (req: Request, res: Response) => {
 
     if (existingProduct) {
       console.log('❌ PRODUCT CREATION FAILED: Duplicate product name');
-      return res.status(400).json({ error: 'Product with this name already exists' });
+      res.status(400).json({ error: 'Product with this name already exists' });
+      return;
     }
 
     // Handle image upload if present
@@ -170,7 +171,8 @@ export const createProduct = async (req: Request, res: Response) => {
         console.log('✅ Image uploaded successfully');
       } catch (error) {
         console.log('❌ PRODUCT CREATION FAILED: Image upload error');
-        return res.status(500).json({ error: 'Failed to upload product image' });
+        res.status(500).json({ error: 'Failed to upload product image' });
+        return;
       }
     }
 
@@ -213,7 +215,7 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 // Update product (admin only)
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const {
@@ -244,12 +246,14 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     if (!existingProduct) {
       console.log('❌ PRODUCT UPDATE FAILED: Product not found with ID:', id);
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
 
     if (existingProduct.isDeleted) {
       console.log('❌ PRODUCT UPDATE FAILED: Product is deleted:', id);
-      return res.status(404).json({ error: 'Product has been deleted' });
+      res.status(404).json({ error: 'Product has been deleted' });
+      return;
     }
 
     // Validate category exists if changing
@@ -263,7 +267,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 
       if (!category) {
         console.log('❌ PRODUCT UPDATE FAILED: Category not found');
-        return res.status(404).json({ error: 'Category not found' });
+        res.status(404).json({ error: 'Category not found' });
+        return;
       }
     }
 
@@ -300,7 +305,8 @@ export const updateProduct = async (req: Request, res: Response) => {
           console.log('✅ New image uploaded successfully');
         } catch (error) {
           console.log('❌ PRODUCT UPDATE FAILED: Image upload error');
-          return res.status(500).json({ error: 'Failed to upload new product image' });
+          res.status(500).json({ error: 'Failed to upload new product image' });
+          return;
         }
       } else if (imageUrl && imageUrl !== existingProduct.imageUrl) {
         finalImageUrl = imageUrl;
@@ -339,7 +345,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 };
 
 // Delete product (admin only)
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🗑️ PRODUCT DELETE STARTED');
     const { id } = req.params;
@@ -351,7 +357,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     if (!product) {
       console.log('❌ Product not found');
-      return res.status(404).json({ message: 'Product not found' });
+      res.status(404).json({ message: 'Product not found' });
+      return;
     }
 
     let imageDeletionStatus = 'no image';
@@ -398,7 +405,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 // Add new function to delete just the image
-export const deleteProductImage = async (req: Request, res: Response) => {
+export const deleteProductImage = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     console.log('🗑️ PRODUCT IMAGE DELETE STARTED');
@@ -413,12 +420,14 @@ export const deleteProductImage = async (req: Request, res: Response) => {
 
     if (!product) {
       console.log('❌ PRODUCT IMAGE DELETE FAILED: Product not found');
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
 
     if (!product.imageUrl) {
       console.log('⚠️ No image to delete');
-      return res.status(400).json({ error: 'Product has no image' });
+      res.status(400).json({ error: 'Product has no image' });
+      return;
     }
 
     // Delete image from B2
@@ -428,7 +437,8 @@ export const deleteProductImage = async (req: Request, res: Response) => {
       console.log('✅ Image deleted successfully');
     } catch (error) {
       console.log('❌ IMAGE DELETE FAILED:', error instanceof Error ? error.message : 'Unknown error');
-      return res.status(500).json({ error: 'Failed to delete image' });
+      res.status(500).json({ error: 'Failed to delete image' });
+      return;
     }
 
     // Update product to remove image URL

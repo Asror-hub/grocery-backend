@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models';
 import { JWT_CONFIG } from '../config/jwt';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, phone } = req.body;
     console.log('Registration attempt for:', { email, name, phone });
@@ -13,7 +13,8 @@ export const register = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       console.log('Email already registered:', email);
-      return res.status(400).json({ error: 'Email already registered' });
+      res.status(400).json({ error: 'Email already registered' });
+      return;
     }
 
     // Create user (password will be hashed by the model hook)
@@ -57,7 +58,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
     console.log('Login attempt for email:', email);
@@ -66,7 +67,8 @@ export const login = async (req: Request, res: Response) => {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       console.log('User not found for email:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: 'Invalid credentials' });
+      return;
     }
 
     console.log('User found:', {
@@ -92,7 +94,8 @@ export const login = async (req: Request, res: Response) => {
 
     if (!validPassword) {
       console.log('Invalid password for user:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: 'Invalid credentials' });
+      return;
     }
 
     // Generate token
@@ -120,7 +123,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
     // Since we're using JWT tokens, we don't need to do anything on the server
     // The client will handle removing the token

@@ -3,7 +3,7 @@ import { Category, Product } from '../models';
 import { Op } from 'sequelize';
 
 // Get all categories
-export const getAllCategories = async (req: Request, res: Response) => {
+export const getAllCategories = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page = 1, limit = 10, search } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
@@ -43,7 +43,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
 };
 
 // Get category by ID with products
-export const getCategoryById = async (req: Request, res: Response) => {
+export const getCategoryById = async (req: Request, res: Response): Promise<void> => {
   try {
     const category = await Category.findOne({
       where: {
@@ -59,7 +59,8 @@ export const getCategoryById = async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: 'Category not found' });
+      return;
     }
 
     res.json(category);
@@ -70,7 +71,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
 };
 
 // Create new category (admin only)
-export const createCategory = async (req: Request, res: Response) => {
+export const createCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, description } = req.body;
 
@@ -83,7 +84,8 @@ export const createCategory = async (req: Request, res: Response) => {
     });
 
     if (existingCategory) {
-      return res.status(400).json({ error: 'Category with this name already exists' });
+      res.status(400).json({ error: 'Category with this name already exists' });
+      return;
     }
 
     const category = await Category.create({
@@ -104,7 +106,7 @@ export const createCategory = async (req: Request, res: Response) => {
 };
 
 // Update category (admin only)
-export const updateCategory = async (req: Request, res: Response) => {
+export const updateCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, description } = req.body;
@@ -117,7 +119,8 @@ export const updateCategory = async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: 'Category not found' });
+      return;
     }
 
     // Check if new name conflicts with existing category
@@ -131,7 +134,8 @@ export const updateCategory = async (req: Request, res: Response) => {
       });
 
       if (existingCategory) {
-        return res.status(400).json({ error: 'Category with this name already exists' });
+        res.status(400).json({ error: 'Category with this name already exists' });
+        return;
       }
     }
 
@@ -152,7 +156,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 };
 
 // Delete category (admin only)
-export const deleteCategory = async (req: Request, res: Response) => {
+export const deleteCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const category = await Category.findOne({
@@ -163,7 +167,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: 'Category not found' });
+      return;
     }
 
     // Check if category has products
@@ -175,9 +180,10 @@ export const deleteCategory = async (req: Request, res: Response) => {
     });
 
     if (productsCount > 0) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Cannot delete category with associated products' 
       });
+      return;
     }
 
     await category.update({ isDeleted: true });

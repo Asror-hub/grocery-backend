@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Admin from '../models/Admin';
 
 // Get all admin users
-export const getAdminUsers = async (req: Request, res: Response) => {
+export const getAdminUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const admins = await Admin.findAll({
       attributes: { exclude: ['password'] }
@@ -15,14 +15,15 @@ export const getAdminUsers = async (req: Request, res: Response) => {
 };
 
 // Create new admin user
-export const createAdminUser = async (req: Request, res: Response) => {
+export const createAdminUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, phone, password } = req.body;
 
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({ where: { email } });
     if (existingAdmin) {
-      return res.status(400).json({ message: 'Admin with this email already exists' });
+      res.status(400).json({ message: 'Admin with this email already exists' });
+      return;
     }
 
     const admin = await Admin.create({
@@ -44,14 +45,15 @@ export const createAdminUser = async (req: Request, res: Response) => {
 };
 
 // Update admin user
-export const updateAdminUser = async (req: Request, res: Response) => {
+export const updateAdminUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, email, phone } = req.body;
 
     const admin = await Admin.findByPk(id);
     if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      res.status(404).json({ message: 'Admin not found' });
+      return;
     }
 
     // Update admin fields
@@ -71,13 +73,14 @@ export const updateAdminUser = async (req: Request, res: Response) => {
 };
 
 // Delete admin user
-export const deleteAdminUser = async (req: Request, res: Response) => {
+export const deleteAdminUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
     const admin = await Admin.findByPk(id);
     if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      res.status(404).json({ message: 'Admin not found' });
+      return;
     }
 
     await admin.destroy();
