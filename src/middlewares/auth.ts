@@ -36,6 +36,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
     // Check if it's an admin token
     if (decoded.isAdmin) {
       const admin = await Admin.findByPk(decoded.id);
+
       if (!admin) {
         res.status(401).json({ error: 'Admin not found' });
         return;
@@ -48,6 +49,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction): Pro
     } else {
       // Regular user token
       const user = await User.findByPk(decoded.id);
+
       if (!user) {
         res.status(401).json({ error: 'User not found' });
         return;

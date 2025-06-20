@@ -65,6 +65,11 @@ export const register = async (req: RegisterRequest, res: Response): Promise<voi
       password: hashedPassword,
       role: role || 'customer',
     });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
 
     // Generate token
     const token = jwt.sign(
@@ -99,6 +104,11 @@ export const login = async (req: LoginRequest, res: Response): Promise<void> => 
 
     // Find user
     const user = await User.findOne({ where: { email } });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;

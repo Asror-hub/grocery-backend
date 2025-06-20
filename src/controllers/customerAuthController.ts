@@ -26,6 +26,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       phone,
       role: 'customer'
     });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     console.log('User created successfully:', {
       id: user.id,
       email: user.email,
@@ -65,6 +70,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Find user
     const user = await User.findOne({ where: { email } });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     if (!user) {
       console.log('User not found for email:', email);
       res.status(401).json({ error: 'Invalid credentials' });

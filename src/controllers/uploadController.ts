@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { uploadToB2 } from '../config/storage';
 
-export const uploadFile = async (req: Request, res: Response) => {
+export const uploadFile = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
     }
 
     console.log('File received:', req.file);

@@ -33,6 +33,11 @@ export const createAdminUser = async (req: Request, res: Response): Promise<void
       password,
       status: 'active'
     });
+if (!admin) {
+  res.status(404).json({ message: 'Admin not found' });
+  return;
+}
+
 
     const adminResponse = admin.toJSON();
     delete adminResponse.password;
@@ -51,6 +56,11 @@ export const updateAdminUser = async (req: Request, res: Response): Promise<void
     const { name, email, phone } = req.body;
 
     const admin = await Admin.findByPk(id);
+if (!admin) {
+  res.status(404).json({ message: 'Admin not found' });
+  return;
+}
+
     if (!admin) {
       res.status(404).json({ message: 'Admin not found' });
       return;
@@ -78,6 +88,11 @@ export const deleteAdminUser = async (req: Request, res: Response): Promise<void
     const { id } = req.params;
 
     const admin = await Admin.findByPk(id);
+if (!admin) {
+  res.status(404).json({ message: 'Admin not found' });
+  return;
+}
+
     if (!admin) {
       res.status(404).json({ message: 'Admin not found' });
       return;

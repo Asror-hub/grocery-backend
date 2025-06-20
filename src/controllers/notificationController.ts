@@ -22,11 +22,12 @@ export const createOrderNotification = async (orderId: number, userId: number, t
   }
 };
 
-export const getNotifications = async (req: Request, res: Response) => {
+export const getNotifications = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
 
     console.log(`Fetching notifications for user ${userId}`);
@@ -56,13 +57,14 @@ export const getNotifications = async (req: Request, res: Response) => {
   }
 };
 
-export const markAsRead = async (req: Request, res: Response) => {
+export const markAsRead = async (req: Request, res: Response): Promise<void> => {
   try {
     const { notificationId } = req.params;
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
 
     console.log(`Marking notification ${notificationId} as read for user ${userId}`);
@@ -72,7 +74,8 @@ export const markAsRead = async (req: Request, res: Response) => {
     });
 
     if (!notification) {
-      return res.status(404).json({ error: 'Notification not found' });
+      res.status(404).json({ error: 'Notification not found' });
+      return;
     }
 
     await notification.update({ isRead: true });

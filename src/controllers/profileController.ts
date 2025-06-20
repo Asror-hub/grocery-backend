@@ -8,6 +8,11 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
     const user = await User.findByPk(req.user?.id, {
       attributes: { exclude: ['password'] }
     });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
@@ -26,6 +31,11 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
   try {
     const { name, email, phone, address } = req.body;
     const user = await User.findByPk(req.user?.id);
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
@@ -55,6 +65,11 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
   try {
     const { currentPassword, newPassword } = req.body;
     const user = await User.findByPk(req.user?.id);
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });

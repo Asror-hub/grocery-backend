@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 
 // Get all users
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ['password'] }
@@ -14,14 +14,14 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 // Create new user
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, phone, password, role, status } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      res.status(400).json({ message: 'User already exists' });
     }
 
     const user = await User.create({
@@ -32,6 +32,11 @@ export const createUser = async (req: Request, res: Response) => {
       role: role || 'customer',
       status: status || 'active',
     });
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
 
     const userResponse = user.toJSON();
     delete userResponse.password;
@@ -43,14 +48,19 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 // Update user
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, email, phone, role, status } = req.body;
 
     const user = await User.findByPk(id);
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
     }
 
     // Update user fields
@@ -71,13 +81,18 @@ export const updateUser = async (req: Request, res: Response) => {
 };
 
 // Delete user
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
     const user = await User.findByPk(id);
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
     }
 
     await user.destroy();
@@ -88,13 +103,18 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Toggle user status
-export const toggleUserStatus = async (req: Request, res: Response) => {
+export const toggleUserStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
     const user = await User.findByPk(id);
+if (!user) {
+  res.status(404).json({ message: 'User not found' });
+  return;
+}
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
     }
 
     user.status = user.status === 'active' ? 'inactive' : 'active';

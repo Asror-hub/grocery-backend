@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { getIO } from '../config/socket';
 
 // List all promotions
-export const getAllPromotions = async (req: Request, res: Response) => {
+export const getAllPromotions = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🔄 Fetching all promotions');
     const { type, isActive } = req.query;
@@ -259,7 +259,7 @@ export const updatePromotion = async (req: Request, res: Response): Promise<void
 };
 
 // Delete promotion
-export const deletePromotion = async (req: Request, res: Response) => {
+export const deletePromotion = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🔄 Deleting promotion:', req.params.id);
     const { id } = req.params;
@@ -293,7 +293,7 @@ export const deletePromotion = async (req: Request, res: Response) => {
 };
 
 // Set products as new
-export const setNewProducts = async (req: Request, res: Response) => {
+export const setNewProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🔄 Setting new products');
     console.log('Request body:', req.body);
@@ -337,7 +337,7 @@ export const setNewProducts = async (req: Request, res: Response) => {
 };
 
 // Set products as recommended
-export const setRecommendedProducts = async (req: Request, res: Response) => {
+export const setRecommendedProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🔄 Setting recommended products');
     console.log('Request body:', req.body);

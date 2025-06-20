@@ -5,7 +5,7 @@ import { deleteFromB2 } from '../config/storage';
 import { uploadToB2 } from '../config/storage';
 
 // Get all products with pagination and filters
-export const getAllProducts = async (req: Request, res: Response) => {
+export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
       page = 1,
@@ -460,7 +460,7 @@ export const deleteProductImage = async (req: Request, res: Response): Promise<v
 };
 
 // Get products by category
-export const getProductsByCategory = async (req: Request, res: Response) => {
+export const getProductsByCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { categoryId } = req.params;
     const {

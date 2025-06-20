@@ -4,13 +4,15 @@ import Admin from '../models/Admin';
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
-      return res.status(401).json({ error: 'Authentication required' });
+      res.status(401).json({ error: 'Authentication required' });
+      return;
     }
 
     const admin = await Admin.findByPk(req.user.id);
     
     if (!admin) {
-      return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+      res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+      return;
     }
 
     next();

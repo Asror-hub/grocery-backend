@@ -33,11 +33,11 @@ const upload = multer({
 const handleMulterError = (err: any, req: Request, res: Response, next: express.NextFunction) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ error: 'File size too large. Maximum size is 5MB.' });
+      res.status(400).json({ error: 'File size too large. Maximum size is 5MB.' });
     }
-    return res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   } else if (err) {
-    return res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
   next();
 };

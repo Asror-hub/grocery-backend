@@ -22,10 +22,11 @@ router.post('/register', [
     // Validate request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Validation failed',
         details: errors.array().map(err => err.msg)
       });
+      return;
     }
 
     const { name, email, phone, password } = req.body;
@@ -33,9 +34,10 @@ router.post('/register', [
     // Check if customer already exists
     const existingCustomer = await Customer.findOne({ where: { email } });
     if (existingCustomer) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Email already registered'
       });
+      return;
     }
 
     // Hash password
@@ -87,28 +89,32 @@ router.post('/login', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Validation failed',
         details: errors.array().map(err => err.msg)
       });
+      return;
     }
 
     const { email, password } = req.body;
 
     // Find customer
     const customer = await Customer.findOne({ where: { email } });
+
     if (!customer) {
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Invalid credentials'
       });
+      return;
     }
 
     // Verify password
     const validPassword = await bcrypt.compare(password, customer.password);
     if (!validPassword) {
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Invalid credentials'
       });
+      return;
     }
 
     // Generate JWT token

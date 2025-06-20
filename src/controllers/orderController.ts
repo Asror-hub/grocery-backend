@@ -75,6 +75,11 @@ const orderController = {
         status: 'pending' as const,
         paymentStatus: 'pending' as const
       }, { transaction });
+if (!order) {
+  res.status(404).json({ message: 'Order not found' });
+  return;
+}
+
 
       console.log('🔍 Backend: Order created with ID:', order.id);
 
@@ -227,6 +232,11 @@ const orderController = {
           }
         ]
       });
+if (!order) {
+  res.status(404).json({ message: 'Order not found' });
+  return;
+}
+
 
       if (!order) {
         res.status(404).json({ message: 'Order not found' });
@@ -289,7 +299,8 @@ const orderController = {
       });
 
       if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
+        res.status(404).json({ message: 'Order not found' });
+        return;
       }
 
       // Update order status
@@ -312,8 +323,8 @@ const orderController = {
             paymentMethod: order.paymentMethod,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
-            user: order.user,
-            orderItems: order.orderItems.map(item => ({
+            user: (order as any).user,
+            orderItems: (order as any).orderItems?.map((item: any) => ({
               id: item.id,
               quantity: item.quantity,
               price: item.price,
@@ -322,7 +333,7 @@ const orderController = {
                 name: item.product.name,
                 price: item.product.price
               }
-            }))
+            })) || []
           }
         });
 
@@ -339,7 +350,7 @@ const orderController = {
             paymentMethod: order.paymentMethod,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
-            orderItems: order.orderItems.map(item => ({
+            orderItems: (order as any).orderItems?.map((item: any) => ({
               id: item.id,
               quantity: item.quantity,
               price: item.price,
@@ -348,7 +359,7 @@ const orderController = {
                 name: item.product.name,
                 price: item.product.price
               }
-            }))
+            })) || []
           }
         });
       }
@@ -371,6 +382,7 @@ const orderController = {
       }
 
       const order = await Order.findByPk(id);
+
       if (!order) {
         res.status(404).json({ message: 'Order not found' });
         return;

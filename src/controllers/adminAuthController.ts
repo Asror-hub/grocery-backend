@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 import { JWT_CONFIG } from '../config/jwt';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, phone } = req.body;
     console.log('Admin registration attempt:', { name, email, phone });
@@ -13,7 +13,7 @@ export const register = async (req: Request, res: Response) => {
     const existingAdmin = await Admin.findOne({ where: { email } });
     if (existingAdmin) {
       console.log('Admin already exists:', email);
-      return res.status(400).json({ error: 'Email already registered' });
+      res.status(400).json({ error: 'Email already registered' });
     }
 
     // Create admin (password will be hashed by Admin model hooks)
@@ -24,6 +24,11 @@ export const register = async (req: Request, res: Response) => {
       phone,
       status: 'active'
     });
+if (!admin) {
+  res.status(404).json({ message: 'Admin not found' });
+  return;
+}
+
     console.log('Admin created successfully:', { id: admin.id, email: admin.email });
 
     // Generate token
@@ -50,7 +55,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('🔍 Login request body:', req.body);
     console.log('🔍 Login request headers:', req.headers);
@@ -61,15 +66,20 @@ export const login = async (req: Request, res: Response) => {
     // Validate required fields
     if (!email || !password) {
       console.log('❌ Missing required fields:', { email: !!email, password: !!password });
-      return res.status(400).json({ error: 'Email and password are required' });
+      res.status(400).json({ error: 'Email and password are required' });
     }
 
     // Find admin
     const admin = await Admin.findOne({ where: { email } });
+if (!admin) {
+  res.status(404).json({ message: 'Admin not found' });
+  return;
+}
+
     
     if (!admin) {
       console.log('Admin not found:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: 'Invalid credentials' });
     }
 
     console.log('Admin found:', { 
@@ -84,7 +94,7 @@ export const login = async (req: Request, res: Response) => {
     
     if (!validPassword) {
       console.log('Invalid password for admin:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      res.status(401).json({ error: 'Invalid credentials' });
     }
 
     console.log('Password validated successfully for admin:', email);

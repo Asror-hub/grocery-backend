@@ -7,7 +7,11 @@ import { JWT_CONFIG } from '../config/jwt';
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: {
+        id: number;
+        role: string;
+        isAdmin?: boolean;
+      };
     }
   }
 }
@@ -18,30 +22,38 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
+      res.status(401).json({ message: 'Authentication required' });
+      return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    const decoded = jwt.verify(token, JWT_CONFIG.secret) as any;
     const user = await User.findByPk(decoded.id);
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      res.status(401).json({ message: 'User not found' });
+      return;
     }
 
-    req.user = user;
+    req.user = {
+      id: user.id,
+      role: user.role
+    };
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: 'Invalid token' });
+    return;
   }
 };
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Authentication required' });
+    res.status(401).json({ message: 'Authentication required' });
+    return;
   }
 
   if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
+    res.status(403).json({ message: 'Admin access required' });
+    return;
   }
 
   next();
